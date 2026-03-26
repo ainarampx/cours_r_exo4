@@ -40,4 +40,30 @@ df_velo_info <- fromJSON(json_info)$records$fields |>
 nrow(df_velo_info)
 ```
 
-On interroge directement l’API avec httr2, sans télécharger le fichier csv. La réponse JSON est ensuite convertie en tibble. Le paramètre rows permet ici d’obtenir l’ensemble du jeu compagnon, soit 76 lignes.
+On interroge directement l’API avec httr2, sans télécharger le fichier csv. La réponse JSON est ensuite convertie en tibble. Le paramètre rows permet ici d’obtenir l’ensemble du jeu compagnon, soit 76 
+
+
+## Question 2
+```{r}
+
+```
+
+
+
+```{r}
+req <- request("https://data.nantesmetropole.fr/api/explore/v2.1/catalog/datasets/244400404_comptages-velo-nantes-metropole/records?where=boucle_num%20%3D%20880%20OR%20boucle_num%20%3D%20881&limit=100&refine=jour%3A%222025%2F09%22")
+
+resp <- req_perform(req)
+
+data_json <- resp |> resp_body_json(simplifyVector = TRUE)
+
+df_velo_sample <- data_json$results
+```
+
+
+
+```{r}
+dim(df_velo_sample)
+View(df_velo_sample)
+```
+
