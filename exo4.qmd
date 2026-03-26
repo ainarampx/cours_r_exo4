@@ -44,9 +44,6 @@ On interroge directement l’API avec httr2, sans télécharger le fichier csv. 
 
 
 ## Question 2
-```{r}
-
-```
 
 
 
