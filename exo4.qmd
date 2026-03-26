@@ -1,0 +1,43 @@
+---
+title: "exo4"
+format: html
+editor: visual
+---
+
+## Importations de donnés et packages
+```{r}
+install.packages(c("httr2", "jsonlite", "dplyr", "tibble"))
+```
+
+```{r}
+library(httr2)
+library(jsonlite)
+library(dplyr)
+library(tibble)
+```
+
+
+## Question 1
+
+```{r}
+url_info <- "https://data.nantesmetropole.fr/api/records/1.0/search/"
+
+req_info <- request(url_info) |>
+  req_url_query(
+    dataset = "244400404_comptages-velo-nantes-metropole-boucles-comptage",
+    rows = 100
+  )
+
+resp_info <- req_perform(req_info)
+
+json_info <- resp_body_string(resp_info)
+
+df_velo_info <- fromJSON(json_info)$records$fields |>
+  tibble::as_tibble()
+```
+
+```{r}
+nrow(df_velo_info)
+```
+
+On interroge directement l’API avec httr2, sans télécharger le fichier csv. La réponse JSON est ensuite convertie en tibble. Le paramètre rows permet ici d’obtenir l’ensemble du jeu compagnon, soit 76 lignes.
