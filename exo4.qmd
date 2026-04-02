@@ -150,3 +150,30 @@ trajets_jour_semaine
 ```
 
 Cela permet de comparer l’affluence globale entre jours ouvrés et week-end.
+
+## Question 6
+
+
+passer au format long
+```{r}
+library(tidyr)
+
+df_heures <- df_velo |>
+  pivot_longer(
+    cols = all_of(heures_cols),
+    names_to = "heure",
+    values_to = "trajets"
+  )
+```
+
+```{r}
+moyenne_par_heure <- df_heures |>
+  group_by(heure) |>
+  summarise(moyenne_trajets = mean(trajets, na.rm = TRUE)) |>
+  arrange(desc(moyenne_trajets))
+
+moyenne_par_heure
+```
+Le tableau précédent permet d’identifier les heures de la journée où le nombre moyen de trajets est le plus élevé.
+
+
