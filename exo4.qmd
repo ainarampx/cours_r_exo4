@@ -243,3 +243,29 @@ ggplot(affluence_tranche, aes(x = tranche_horaire, y = moyenne_trajets)) +
 ```
 
 L’affluence moyenne est généralement plus forte aux heures de pointe, en particulier le matin et en fin de journée. Cela correspond aux déplacements domicile-travail ou domicile-études
+
+## Question 9
+
+```{r}
+df_velo <- df_velo |>
+  mutate(
+    numero = Numéro.de.boucle,
+    direction = str_extract(libelle, "Nord|Sud|Est|Ouest"),
+    boucle = str_remove(libelle, "\\s+[Vv]ers\\s+(Nord|Sud|Est|Ouest)$")
+  )
+```
+
+```{r}
+df_velo |>
+  select(numero, boucle, direction) |>
+  distinct()
+```
+```{r}
+direction_plus <- df_velo |>
+  group_by(direction) |>
+  summarise(total_trajets = sum(Total, na.rm = TRUE)) |>
+  arrange(desc(total_trajets))
+
+direction_plus
+```
+
