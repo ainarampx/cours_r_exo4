@@ -176,4 +176,20 @@ moyenne_par_heure
 ```
 Le tableau précédent permet d’identifier les heures de la journée où le nombre moyen de trajets est le plus élevé.
 
+## Question 7
+```{r}
+df_heures <- df_heures |>
+  mutate(
+    heure_num = as.numeric(str_extract(heure, "\\d{2}"))
+  )
+```
 
+```{r}
+df_heures |>
+  select(heure, heure_num) |>
+  distinct() |>
+  arrange(heure_num)
+```
+On utilise ici stringr et une expression régulière pour extraire les deux chiffres correspondant à l’heure, puis on les convertit en variable numérique.
+
+##
