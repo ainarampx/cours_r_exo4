@@ -122,4 +122,31 @@ df_velo <- df_velo |>
 
 Avec read.delim, les variables sont souvent importées de façon plus “brute”, avec moins d’assistance sur les types, et il faut préciser davantage les paramètres de lecture. readr détecte généralement mieux les types et renvoie directement un tibble.
 
+## Question 5 
 
+```{r}
+library(lubridate)
+
+df_velo <- df_velo |>
+  mutate(
+    Jour = ymd(Jour),
+    mois_num = month(Jour),
+    mois = factor(
+      mois_num,
+      levels = 1:12,
+      labels = c("janvier", "février", "mars", "avril", "mai", "juin",
+                 "juillet", "août", "septembre", "octobre", "novembre", "décembre")
+    )
+  )
+```
+
+Nombre de trajets par jour de la semaine
+```{r}
+trajets_jour_semaine <- df_velo |>
+  group_by(Jour.de.la.semaine) |>
+  summarise(nombre_trajets = sum(Total, na.rm = TRUE))
+
+trajets_jour_semaine
+```
+
+Cela permet de comparer l’affluence globale entre jours ouvrés et week-end.
