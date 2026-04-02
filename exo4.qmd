@@ -64,3 +64,32 @@ dim(df_velo_sample)
 View(df_velo_sample)
 ```
 
+## Question 3
+
+## Question 3
+
+```{r}
+df_velo <- read.csv("244400404_comptages-velo-nantes-metropole.csv", sep = ";")
+
+df_velo_info <- df_velo_info |>
+  mutate(boucle_num = as.integer(boucle_num))
+```
+
+```{r}
+df_velo_join <- df_velo |>
+  left_join(df_velo_info, by = c("Numéro.de.boucle" = "boucle_num"))
+
+df_velo_join <- df_velo_join |>
+  mutate(geolocalisation = as.character(geolocalisation))
+```
+
+
+```{r}
+ dir.create("data", showWarnings = FALSE)
+
+write.csv(df_velo_join,
+          file = "data/df_velo_join.csv",
+          row.names = FALSE)
+```
+
+Cette étape permet d’exclure du versionnement Git les fichiers générés ou volumineux du dossier data/. Ils peuvent être recréés à partir du code et n’ont pas besoin d’être suivis dans le dépôt.
