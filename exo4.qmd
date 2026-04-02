@@ -268,4 +268,122 @@ direction_plus <- df_velo |>
 
 direction_plus
 ```
+## Question 10
 
+séparer une chaîne de caractères en deux
+
+On commence par sélectionner les colonnes d’intérêt et passer les heures au format long.
+```{r}
+# Colonnes horaires
+# on repère les colonnes horaires
+heures_cols_sample <- names(df_velo_sample)[
+  stringr::str_detect(names(df_velo_sample), "^X\\d{2}$|^\\d{2}$|^h\\d{2}|^heure")
+]
+
+
+# Nom de la colonne contenant le libellé de la boucle
+col_libelle <- if ("boucle_libelle" %in% names(df_velo_sample)) {
+  "boucle_libelle"
+} else if ("libelle" %in% names(df_velo_sample)) {
+  "libelle"
+} else {
+  stop("Aucune colonne de libellé trouvée dans df_velo_sample.")
+}
+
+# Mise au format long
+df_flux <- df_velo_sample |>
+  as_tibble() |>
+  pivot_longer(
+    cols = all_of(heures_cols_sample),
+    names_to = "heure",
+    values_to = "trajets"
+  ) |>
+  mutate(
+    heure_num = as.numeric(str_extract(heure, "\\d{2}")),
+    direction = str_extract(.data[[col_libelle]], "Nord|Sud|Est|Ouest")
+  )
+```
+On vérifie les deux directions présentes dans l’échantillon.
+```{r}
+ directions <- sort(unique(na.omit(df_flux$direction)))
+directions
+```
+On calcule ensuite le flux net entre les deux directions, heure par heure et jour par jour.
+```{r}
+if (length(directions) != 2) {
+  stop("Le jeu df_velo_sample ne contient pas exactement deux directions.")
+}
+
+dir1 <- directions[1]
+dir2 <- directions[2]
+
+flux_net <- df_flux |>
+  select(jour, heure_num, direction, trajets) |>
+  pivot_wider(
+    names_from = direction,
+    values_from = trajets
+  ) |>
+  mutate(
+    flux_net = .data[[dir1]] - .data[[dir2]]
+  )
+```
+
+```{r}
+flux_par_jour <- flux_net |>
+  group_by(jour) |>
+  summarise(
+    flux_net_jour = sum(flux_net, na.rm = TRUE)
+  )
+
+flux_par_jour
+```
+
+```{r}
+ggplot(flux_par_jour, aes(x = jour, y = flux_net_jour)) +
+  geom_col() +
+  labs(
+    title = paste("Flux net par jour (", dir1, " - ", dir2, ")", sep = ""),
+    x = "Jour",
+    y = "Flux net"
+  ) +
+  theme_minimal()
+```
+
+par tranche horarie
+
+```{r}
+flux_net <- flux_net |>
+  mutate(
+    tranche_horaire = case_when(
+      heure_num >= 0  & heure_num < 6  ~ "nuit",
+      heure_num >= 6  & heure_num < 10 ~ "matin",
+      heure_num >= 10 & heure_num < 16 ~ "milieu de journée",
+      heure_num >= 16 & heure_num < 20 ~ "soir",
+      TRUE ~ "fin de journée"
+    )
+  )
+```
+
+
+```{r}
+flux_par_tranche <- flux_net |>
+  group_by(tranche_horaire) |>
+  summarise(
+    flux_net_moyen = mean(flux_net, na.rm = TRUE)
+  )
+
+flux_par_tranche
+```
+```{r}
+ggplot(flux_par_tranche, aes(x = tranche_horaire, y = flux_net_moyen)) +
+  geom_col() +
+  labs(
+    title = paste("Flux net moyen par tranche horaire (", dir1, " - ", dir2, ")", sep = ""),
+    x = "Tranche horaire",
+    y = "Flux net moyen"
+  ) +
+  theme_minimal()
+```
+
+
+Le flux net compare les deux directions d’une même boucle. Une valeur positive signifie que la première direction retenue est plus fréquentée que la seconde, tandis qu’une valeur négative indique l’inverse. L’analyse par jour et par tranche horaire permet d’identifier les moments où le déséquilibre entre les deux sens de circulation est le plus marqué.
