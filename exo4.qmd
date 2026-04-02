@@ -192,4 +192,54 @@ df_heures |>
 ```
 On utilise ici stringr et une expression régulière pour extraire les deux chiffres correspondant à l’heure, puis on les convertit en variable numérique.
 
-##
+## Question 8
+
+```{r}
+library (ggplot2)
+
+moyenne_par_heure_num <- df_heures |>
+  group_by(heure_num) |>
+  summarise(moyenne_trajets = mean(trajets, na.rm = TRUE))
+```
+
+```{r}
+ggplot(moyenne_par_heure_num, aes(x = heure_num, y = moyenne_trajets)) +
+  geom_col() +
+  labs(
+    title = "Affluence moyenne par heure",
+    x = "Heure",
+    y = "Nombre moyen de trajets"
+  ) +
+  theme_minimal()
+```
+```{r}
+df_heures <- df_heures |>
+  mutate(
+    tranche_horaire = case_when(
+      heure_num >= 0  & heure_num < 6  ~ "nuit",
+      heure_num >= 6  & heure_num < 10 ~ "matin",
+      heure_num >= 10 & heure_num < 16 ~ "milieu de journée",
+      heure_num >= 16 & heure_num < 20 ~ "soir",
+      TRUE ~ "fin de journée"
+    )
+  )
+```
+
+```{r}
+affluence_tranche <- df_heures |>
+  group_by(tranche_horaire) |>
+  summarise(moyenne_trajets = mean(trajets, na.rm = TRUE))
+```
+
+```{r}
+ggplot(affluence_tranche, aes(x = tranche_horaire, y = moyenne_trajets)) +
+  geom_col() +
+  labs(
+    title = "Affluence moyenne par tranche horaire",
+    x = "Tranche horaire",
+    y = "Nombre moyen de trajets"
+  ) +
+  theme_minimal()
+```
+
+L’affluence moyenne est généralement plus forte aux heures de pointe, en particulier le matin et en fin de journée. Cela correspond aux déplacements domicile-travail ou domicile-études
