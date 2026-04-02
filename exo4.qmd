@@ -93,3 +93,33 @@ write.csv(df_velo_join,
 ```
 
 Cette étape permet d’exclure du versionnement Git les fichiers générés ou volumineux du dossier data/. Ils peuvent être recréés à partir du code et n’ont pas besoin d’être suivis dans le dépôt.
+
+## Question 4
+
+Comme write.csv() écrit avec des virgules, on précise sep = ",".
+
+```{r}
+df_velo <- read.delim("data/df_velo_join.csv", sep = ",")
+```
+
+convertir en tibble
+
+```{r}
+df_velo <- as_tibble(df_velo)
+```
+
+Filtrer les anomalies
+```{r}
+library(stringr) 
+
+df_velo <- df_velo |>
+  filter(
+    !str_detect(Probabilité.de.présence.d.anomalies, "^Fort|^Faible"),
+    Total >= 0,
+    Total <= 10000
+  )
+```
+
+Avec read.delim, les variables sont souvent importées de façon plus “brute”, avec moins d’assistance sur les types, et il faut préciser davantage les paramètres de lecture. readr détecte généralement mieux les types et renvoie directement un tibble.
+
+
